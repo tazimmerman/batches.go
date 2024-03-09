@@ -35,9 +35,12 @@ func Batches[T any](ctx context.Context, values <-chan T, size int, timeout time
 	go func() {
 		defer close(batches)
 
+		expire := time.NewTimer(timeout)
+
+		defer expire.Stop()
+
 		for stop := false; !stop; {
 			var batch []T
-			expire := time.After(timeout)
 
 			for {
 				select {
@@ -53,7 +56,7 @@ func Batches[T any](ctx context.Context, values <-chan T, size int, timeout time
 					if len(batches) == size {
 						goto done
 					}
-				case <-expire:
+				case <-expire.C:
 					goto done
 				}
 			}
@@ -61,6 +64,7 @@ func Batches[T any](ctx context.Context, values <-chan T, size int, timeout time
 			if len(batches) > 0 {
 				batches <- batch
 			}
+			expire.Reset(timeout)
 		}
 	}()
 
