@@ -7,8 +7,9 @@ import (
 )
 
 func TestBatchesSize(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
 	ch := make(chan int)
-	bch := Batches(context.Background(), ch, 10, time.Second*5)
+	bch := Batches(ctx, ch, 10, time.Second*5)
 
 	go func() {
 		for i := 0; i < 100; i++ {
@@ -33,12 +34,13 @@ func TestBatchesSize(t *testing.T) {
 	}
 
 	done:
-		close(bch)
+		cancel()
 }
 
 func TestBatchesTimeout(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
 	ch := make(chan int)
-	bch := Batches(context.Background(), ch, 10, time.Second*1)
+	bch := Batches(ctx, ch, 10, time.Second*1)
 
 	go func() {
 		for i := 0; i < 100; i++ {
@@ -63,5 +65,5 @@ func TestBatchesTimeout(t *testing.T) {
 	}
 
 	done:
-		close(bch)
+		cancel()
 }

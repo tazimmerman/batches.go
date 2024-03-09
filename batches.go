@@ -29,7 +29,7 @@ import (
 // A slice is written to the returned chan when its length is size items
 // or timeout is reached, whichever happens first. If ctx is cancelled a
 // final batch of up to size items may be delivered.
-func Batches[T any](ctx context.Context, values <-chan T, size int, timeout time.Duration) chan []T {
+func Batches[T any](ctx context.Context, values <-chan T, size int, timeout time.Duration) <-chan []T {
 	batches := make(chan []T, 1)
 
 	go func() {
